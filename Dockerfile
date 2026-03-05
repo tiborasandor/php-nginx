@@ -1,6 +1,6 @@
 FROM php:8.5.3-fpm-alpine3.23
 
-LABEL maintainer="Tibi"
+LABEL maintainer="tiborasandor"
 
 ENV LD_PRELOAD=/usr/lib/preloadable_libiconv.so \
     PHP_CONF=/usr/local/etc/php-fpm.conf \

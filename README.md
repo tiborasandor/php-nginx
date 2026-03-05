@@ -36,7 +36,7 @@ Rugalmas PHP-Nginx Docker image saját webalkalmazások futtatásához
 ### Build
 
 ```bash
-docker build -t tibi/php-nginx .
+docker build -t tiborasandor/php-nginx .
 ```
 
 ### Egyszerű futtatás
@@ -45,7 +45,7 @@ docker build -t tibi/php-nginx .
 docker run -d \
   --name php-nginx \
   -p 8081:80 \
-  tibi/php-nginx
+  tiborasandor/php-nginx
 ```
 
 ### Framework alapú alkalmazás futtatása
@@ -57,7 +57,7 @@ docker run -d \
   -e WEBROOT=/var/www/html/public \
   -e PHP_FRONT_CONTROLLER=1 \
   -v /srv/app/myapp:/var/www/html \
-  tibi/php-nginx
+  tiborasandor/php-nginx
 ```
 
 ## Egyedi nginx konfiguráció
