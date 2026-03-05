@@ -14,7 +14,10 @@ RUN apk add --no-cache \
     tzdata \
     curl \
     git \
+    unzip \
     bash
+
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 # Install PHP extensions
 RUN apk add --no-cache --virtual .build-deps \
@@ -61,9 +64,6 @@ RUN echo "cgi.fix_pathinfo=0" > ${PHP_VARS} && \
     -e 's#^[;[:space:]]*listen[[:space:]]*=.*#listen = /var/run/php-fpm.sock#' \
     -e 's#^[;[:space:]]*clear_env[[:space:]]*=.*#clear_env = no#' \
     ${FPM_CONF}
-
-
-
 
 # Startup script
 COPY scripts/start.sh /start.sh
