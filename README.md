@@ -72,6 +72,22 @@ docker run -d \
   tiborasandor/php-nginx
 ```
 
+## Image-ek a GHCR-ben
+
+A push a main branch-re automatikusan (GitHub Actions) buildeli és feltolja a
+verziózott image-eket a GitHub Container Registry-be:
+
+- `ghcr.io/tiborasandor/php-nginx:8.5`
+- `ghcr.io/tiborasandor/php-nginx:8.3`
+- `ghcr.io/tiborasandor/php-nginx:latest` (a 8.5-tel megegyező)
+
+Mivel a repó privát, a package is privát lesz — a lehúzáshoz a szerveren be
+kell jelentkezni egy `packages:read` scope-ú GitHub personal access tokennel:
+
+```bash
+echo "<PAT>" | docker login ghcr.io -u tiborasandor --password-stdin
+```
+
 ## Egyedi nginx konfiguráció
 
 Ha az alkalmazás a következő fájlokat tartalmazza, a konténer induláskor felülírja velük az alapértelmezett nginx konfigurációt:
