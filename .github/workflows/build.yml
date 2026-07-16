@@ -17,12 +17,27 @@ jobs:
           - php_version: 8.5.3-fpm-alpine3.23
             tag: "8.5"
             latest: true
+            include_claude: false
+          - php_version: 8.5.3-fpm-alpine3.23
+            tag: "8.5-claude"
+            latest: false
+            include_claude: true
           - php_version: 8.3.15-fpm-alpine3.21
             tag: "8.3"
             latest: false
+            include_claude: false
+          - php_version: 8.3.15-fpm-alpine3.21
+            tag: "8.3-claude"
+            latest: false
+            include_claude: true
           - php_version: 8.2.32-fpm-alpine3.24
             tag: "8.2"
             latest: false
+            include_claude: false
+          - php_version: 8.2.32-fpm-alpine3.24
+            tag: "8.2-claude"
+            latest: false
+            include_claude: true
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -43,6 +58,7 @@ jobs:
           context: .
           build-args: |
             PHP_VERSION=${{ matrix.php_version }}
+            INCLUDE_CLAUDE=${{ matrix.include_claude }}
           push: true
           provenance: false
           tags: |

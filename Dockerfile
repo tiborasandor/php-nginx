@@ -1,4 +1,5 @@
 ARG PHP_VERSION=8.5.3-fpm-alpine3.23
+ARG INCLUDE_CLAUDE=false
 FROM php:${PHP_VERSION}
 
 LABEL maintainer="tiborasandor"
@@ -78,6 +79,15 @@ RUN echo "cgi.fix_pathinfo=0" > ${PHP_VARS} && \
     -e 's#^[;[:space:]]*listen[[:space:]]*=.*#listen = /var/run/php-fpm.sock#' \
     -e 's#^[;[:space:]]*clear_env[[:space:]]*=.*#clear_env = no#' \
     ${FPM_CONF}
+
+# Claude Code CLI (fejlesztői konténerekhez, opcionális)
+# INCLUDE_CLAUDE=true build-arg-gal buildelt image-ekbe kerul be, az alap
+# (production) image-eket nem noveli.
+ARG INCLUDE_CLAUDE
+RUN if [ "$INCLUDE_CLAUDE" = "true" ]; then \
+      apk add --no-cache nodejs npm && \
+      npm install -g @anthropic-ai/claude-code; \
+    fi
 
 # Startup script
 COPY scripts/start.sh /start.sh
