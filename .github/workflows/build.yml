@@ -44,6 +44,7 @@ jobs:
           build-args: |
             PHP_VERSION=${{ matrix.php_version }}
           push: true
+          provenance: false
           tags: |
             ghcr.io/tiborasandor/php-nginx:${{ matrix.tag }}
             ghcr.io/tiborasandor/php-nginx:${{ matrix.tag }}-${{ github.sha }}
