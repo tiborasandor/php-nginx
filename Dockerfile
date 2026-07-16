@@ -23,7 +23,7 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 RUN apk add --no-cache --virtual .build-deps \
     $PHPIZE_DEPS \
     mariadb-dev && \
-    docker-php-ext-install pdo_mysql mysqli && \
+    docker-php-ext-install pdo_mysql mysqli opcache && \
     apk del .build-deps
 
 # Directory structure
@@ -49,6 +49,11 @@ RUN echo "cgi.fix_pathinfo=0" > ${PHP_VARS} && \
     echo "post_max_size=100M" >> ${PHP_VARS} &&\
     echo "variables_order=\"EGPCS\"" >> ${PHP_VARS} && \
     echo "memory_limit=128M" >> ${PHP_VARS} && \
+    echo "opcache.enable=1" >> ${PHP_VARS} && \
+    echo "opcache.memory_consumption=128" >> ${PHP_VARS} && \
+    echo "opcache.max_accelerated_files=10000" >> ${PHP_VARS} && \
+    echo "opcache.validate_timestamps=1" >> ${PHP_VARS} && \
+    echo "opcache.revalidate_freq=2" >> ${PHP_VARS} && \
     sed -i -E \
     -e 's#^[;[:space:]]*catch_workers_output[[:space:]]*=[[:space:]]*yes#catch_workers_output = yes#' \
     -e 's#^[;[:space:]]*pm\.max_children[[:space:]]*=.*#pm.max_children = 4#' \
@@ -67,7 +72,8 @@ RUN echo "cgi.fix_pathinfo=0" > ${PHP_VARS} && \
 
 # Startup script
 COPY scripts/start.sh /start.sh
-RUN chmod 755 /start.sh
+COPY scripts/git-askpass.sh /usr/local/bin/git-askpass.sh
+RUN chmod 755 /start.sh /usr/local/bin/git-askpass.sh
 
 # Application
 WORKDIR /var/www/html

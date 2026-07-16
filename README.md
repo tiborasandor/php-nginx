@@ -23,6 +23,9 @@ Rugalmas PHP-Nginx Docker image saját webalkalmazások futtatásához
 - `post_max_size=100M`
 - `memory_limit=128M`
 - `cgi.fix_pathinfo=0`
+- `opcache.enable=1` (`opcache.memory_consumption=128`, `opcache.max_accelerated_files=10000`, `opcache.validate_timestamps=1`, `opcache.revalidate_freq=2`)
+
+> ⚠️ **Fontos:** az `app/` könyvtárban lévő `index.php` egy puszta `phpinfo()` placeholder. Éles használat előtt mindenképp cseréld le a saját alkalmazásodra (vagy mountold felül egy volume-mal) — a `phpinfo()` a teljes szerver- és környezeti változó listát (útvonalak, PHP config, `$_SERVER`) nyilvánosan elérhetővé teszi, ha véletlenül bent marad.
 
 ## Alapértelmezett útvonalak
 
@@ -88,7 +91,7 @@ Ha az alkalmazás a következő fájlokat tartalmazza, a konténer induláskor f
 | PUID | nincs | nginx user UID beállítása |
 | PGID | PUID értéke | nginx group GID beállítása |
 | SKIP_CHOWN | `0` | Tulajdonosváltás kihagyása |
-| GIT_REPO | nincs | Git repository URL |
+| GIT_REPO | nincs | Git repository teljes URL-je (pl. `https://github.com/user/repo.git` vagy SSH esetén `git@github.com:user/repo.git`) |
 | GIT_BRANCH | default branch | Klónozandó branch |
 | GIT_TAG | nincs | Checkout tag |
 | GIT_COMMIT | nincs | Checkout commit |
@@ -105,6 +108,7 @@ Ha az alkalmazás a következő fájlokat tartalmazza, a konténer induláskor f
 ## Megjegyzések
 
 - A git alapú deploy mindig a `/var/www/html` könyvtárba klónoz.
+- `GIT_REPO` mindig a teljes URL-t várja (séma előtaggal), `GIT_USERNAME`/`GIT_PERSONAL_TOKEN` megadása esetén is. A hitelesítő adatokat a konténer nem ágyazza bele az URL-be, hanem `GIT_ASKPASS`-on keresztül adja át gitnek, hogy azok ne jelenjenek meg a klónozó parancs argumentumaiban.
 - A `WEBROOT` csak az nginx kiszolgálási gyökérkönyvtárát módosítja.
 - Framework alapú alkalmazásoknál általában ez a két beállítás szükséges:
 

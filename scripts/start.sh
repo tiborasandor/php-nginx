@@ -28,23 +28,18 @@ if [ ! -d /var/www/html/.git ] && [ -n "${GIT_REPO:-}" ]; then
     rm -rf /var/www/html/*
   fi
 
-  GIT_COMMAND='git clone'
+  GIT_CLONE_ARGS=(clone)
+  [ -n "${GIT_BRANCH:-}" ] && GIT_CLONE_ARGS+=(-b "${GIT_BRANCH}")
 
-  if [ -n "${GIT_BRANCH:-}" ]; then
-    GIT_COMMAND="${GIT_COMMAND} -b ${GIT_BRANCH}"
+  # HTTPS + felhasználó/token esetén GIT_ASKPASS-on keresztül adjuk át a
+  # hitelesítő adatokat, hogy azok ne kerüljenek bele a klónozó parancs
+  # argumentumaiba (amit `ps`/`/proc` bárki látna ugyanabban a konténerben).
+  if [ -n "${GIT_USERNAME:-}" ] && [ -n "${GIT_PERSONAL_TOKEN:-}" ] && [ "${GIT_USE_SSH:-0}" != "1" ]; then
+    export GIT_ASKPASS=/usr/local/bin/git-askpass.sh
   fi
 
-  if [ -z "${GIT_USERNAME:-}" ] && [ -z "${GIT_PERSONAL_TOKEN:-}" ]; then
-    GIT_COMMAND="${GIT_COMMAND} ${GIT_REPO}"
-  else
-    if [ "${GIT_USE_SSH:-0}" = "1" ]; then
-      GIT_COMMAND="${GIT_COMMAND} ${GIT_REPO}"
-    else
-      GIT_COMMAND="${GIT_COMMAND} https://${GIT_USERNAME}:${GIT_PERSONAL_TOKEN}@${GIT_REPO}"
-    fi
-  fi
-
-  ${GIT_COMMAND} /var/www/html || exit 1
+  git "${GIT_CLONE_ARGS[@]}" "${GIT_REPO}" /var/www/html || exit 1
+  unset GIT_ASKPASS
 
   cd /var/www/html || exit 1
 
