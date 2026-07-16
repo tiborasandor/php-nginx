@@ -1,4 +1,5 @@
-FROM php:8.5.3-fpm-alpine3.23
+ARG PHP_VERSION=8.5.3-fpm-alpine3.23
+FROM php:${PHP_VERSION}
 
 LABEL maintainer="tiborasandor"
 
@@ -20,10 +21,18 @@ RUN apk add --no-cache \
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 # Install PHP extensions
+# Az OPcache PHP 8.5-től kezdve mindig be van építve a binárisba (nem
+# telepíthető/építhető shared extension-ként), régebbi PHP verzióknál viszont
+# még külön docker-php-ext-install kell hozzá.
 RUN apk add --no-cache --virtual .build-deps \
     $PHPIZE_DEPS \
     mariadb-dev && \
-    docker-php-ext-install pdo_mysql mysqli opcache && \
+    docker-php-ext-install pdo_mysql mysqli && \
+    if php -r 'exit(version_compare(PHP_VERSION, "8.5.0", "<") ? 0 : 1);'; then \
+      docker-php-ext-install opcache; \
+    else \
+      echo "PHP >= 8.5: opcache mar beepitve, shared install kihagyva"; \
+    fi && \
     apk del .build-deps
 
 # Directory structure

@@ -42,6 +42,15 @@ Rugalmas PHP-Nginx Docker image saját webalkalmazások futtatásához
 docker build -t tiborasandor/php-nginx .
 ```
 
+### Build másik PHP verzióval
+
+A PHP verzió build-argumentumként cserélhető, így ugyanabból a Dockerfile-ból
+több PHP verziójú image is építhető:
+
+```bash
+docker build --build-arg PHP_VERSION=8.3.15-fpm-alpine3.21 -t tiborasandor/php-nginx:8.3 .
+```
+
 ### Egyszerű futtatás
 
 ```bash
