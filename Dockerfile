@@ -85,7 +85,7 @@ RUN echo "cgi.fix_pathinfo=0" > ${PHP_VARS} && \
 # (production) image-eket nem noveli.
 ARG INCLUDE_CLAUDE
 RUN if [ "$INCLUDE_CLAUDE" = "true" ]; then \
-      apk add --no-cache nodejs npm && \
+      apk add --no-cache --upgrade sqlite-libs nodejs npm && \
       npm install -g @anthropic-ai/claude-code; \
     fi
 
