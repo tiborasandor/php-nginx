@@ -36,6 +36,22 @@ RUN apk add --no-cache --virtual .build-deps \
     fi && \
     apk del .build-deps
 
+# GD kepfeldolgozo extension (opcionalis, resize/WebP-mentes celjara)
+# INCLUDE_GD=true build-arg-gal buildelt image-ekbe kerul be, az alap
+# (production) image-eket nem noveli. Imagick helyett GD, mert nincs szukseg
+# tobbre resize-nal es minosegi-parameteres JPEG/WebP mentesnel, es igy nem
+# kell behozni az ImageMagick/libmagickwand fuggosegeit.
+ARG INCLUDE_GD=false
+RUN if [ "$INCLUDE_GD" = "true" ]; then \
+      apk add --no-cache --virtual .gd-build-deps \
+        $PHPIZE_DEPS \
+        libjpeg-turbo-dev libpng-dev libwebp-dev freetype-dev && \
+      docker-php-ext-configure gd --with-jpeg --with-webp --with-freetype && \
+      docker-php-ext-install -j$(nproc) gd && \
+      apk add --no-cache libjpeg-turbo libpng libwebp freetype && \
+      apk del .gd-build-deps; \
+    fi
+
 # Directory structure
 RUN rm -rf /var/www/* && \
     mkdir -p \
