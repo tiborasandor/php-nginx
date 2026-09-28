@@ -85,6 +85,15 @@ if [ -n "${PHP_FRONT_CONTROLLER:-}" ]; then
   if [ -f "$SSL_SITE" ]; then
     sed -i -E 's#^[[:space:]]*try_files[[:space:]]+\$uri[[:space:]]+\$uri/[[:space:]]+=404;#        try_files $uri $uri/ /index.php?$query_string;#' "$SSL_SITE"
   fi
+
+  # A gyökér (/) is közvetlenül az index.php-ra menjen: különben a try_files
+  # "$uri/" ága (a webroot létező mappa) miatt az nginx maga szolgálja ki, és
+  # a GET-en kívüli metódusokra (POST, PUT, ...) 405-öt ad.
+  for SITE in "$DEFAULT_SITE" "$SSL_SITE"; do
+    if [ -f "$SITE" ] && ! grep -q 'location = / {' "$SITE"; then
+      sed -i -E 's#^([[:space:]]*)location / \{#\1location = / {\n\1    rewrite ^ /index.php last;\n\1}\n\n\1location / {#' "$SITE"
+    fi
+  done
 fi
 
 # --------------------------------------------------
