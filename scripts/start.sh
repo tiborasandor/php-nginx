@@ -178,6 +178,37 @@ if [ -n "${PUID:-}" ]; then
 fi
 
 # --------------------------------------------------
+# Cron (ha CRON_COMMAND meg van adva)
+# --------------------------------------------------
+# A parancs percenként fut az nginx felhasználóval (ugyanaz, mint a PHP-FPM,
+# így a létrehozott fájlok jogai stimmelnek), és megkapja a konténer
+# környezeti változóit. A busybox crond a supervisord alatt fut.
+CRON_SUPERVISOR_CONF=/etc/supervisor/conf.d/crond.conf
+case "${CRON_COMMAND:-}" in
+  ""|0|false|FALSE|False|no|off)
+    rm -f /etc/crontabs/nginx "$CRON_SUPERVISOR_CONF"
+    ;;
+  *)
+    echo "Enabling cron: ${CRON_COMMAND}"
+    mkdir -p /etc/crontabs /etc/supervisor/conf.d
+    # a crontabban a % sortörést jelent, ezért escape-elni kell
+    echo "* * * * * ${CRON_COMMAND//%/\\%}" > /etc/crontabs/nginx
+    chmod 600 /etc/crontabs/nginx
+    cat > "$CRON_SUPERVISOR_CONF" <<'EOF'
+[program:crond]
+command=/usr/sbin/crond -f -d 8
+autostart=true
+autorestart=true
+priority=20
+stdout_logfile=/dev/stdout
+stdout_logfile_maxbytes=0
+stderr_logfile=/dev/stderr
+stderr_logfile_maxbytes=0
+EOF
+    ;;
+esac
+
+# --------------------------------------------------
 # Jogosultságok beállítása
 # --------------------------------------------------
 if [ -z "${SKIP_CHOWN:-}" ]; then
